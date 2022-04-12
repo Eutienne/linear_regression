@@ -1,4 +1,6 @@
 import math
+import matplotlib.pyplot as plt
+import numpy as np
 
 theta0, theta1 = 0.0, 0.0
 
@@ -34,48 +36,59 @@ def getLearningRate(mileage, price):
     tmp1 = math.sqrt(y2Averege / (len(price) - 1)) / math.sqrt(x2Average / (len(mileage) - 1))
     return sumxAverage / math.sqrt(x2Average * y2Averege) * -1
 
+def denormalize(mileage, price):
+    xMax = float(max(mileage))
+    xMin = float(min(mileage))
+    yMax = float(max(price))
+    yMin = float(min(price))
+    global theta1, theta0
+    theta1 *= ((yMax - yMin) / (xMax - xMin))
+    theta0 = ((yMax - yMin) *theta0) + (theta1 * (1 - xMin) +yMin)
+
+def normalize(data):
+    minVal = float(min(data))
+    maxVal = float(max(data))
+    newList = []
+
+    for i in data:
+        newList.append(float (i - minVal) / (maxVal - minVal))
+    return newList
+
 def estimatePrice(mileage):
     return theta0 + (theta1 * mileage)
 
 def train(mileage, price):
-    tmp0, tmp1 = 0.0, 0.0 
+    tmp0, tmp1 = 0.0, 0.0
+    normMileage = normalize(mileage)
+    normPrice = normalize(price) 
     for i in range(len(mileage)):
-        tmp0 += estimatePrice(mileage[i]) - price[i] 
-        tmp1 += (estimatePrice(mileage[i]) - price[i]) * mileage[i]
-        print(tmp0, tmp1)
+        tmp0 += estimatePrice(normMileage[i]) - normPrice[i] 
+        tmp1 += (estimatePrice(normMileage[i]) - normPrice[i]) * normMileage[i]
     
-    global theta0 
+    global theta0, theta1
     theta0 -= learningRate * tmp0/len(mileage)
-    # theta0 -= (tmp0 / len(mileage) * learningRate)
-    global theta1 
     theta1 -= learningRate * tmp1 / len(price)
-    # theta1 -= (tmp1 / len(price) * learningRate)
-    print(theta0 , theta1)
 
 if __name__ == "__main__":
     mileage, price = readfile()
     learningRate = getLearningRate(mileage, price)
-    for i in range(5):
+    for i in range(1000):
         train(mileage,price)
-    # print(learningRate, theta1, theta0)
-    # print(theta0 - theta1 * 240000)
-    # print(price)
+    denormalize(mileage, price)
 
+    km_norm = normalize(mileage)
+    km_price = normalize(price)
 
-# func estimatePrice(....):
-#     return theta0 + theta1*km
+    plt.scatter(mileage, price)
+    plt.title('The car price vs mileage', fontsize=20)
+    plt.xlabel('mileage', fontsize=18)
+    plt.ylabel('price', fontsize=18)
+    # plt.ylim(ymin=0)
+    plt.xlim(xmin=0)
+    x = np.array(range(240000))
+    y = theta0 + theta1 * x
+    print(theta0 + theta1 * 22899)
 
-
-# for i in 100:
-#     tmp, tmp1 = learning(data)
-#     update theta0 & theta1
-
-
-# learnning(data):
-#     for i in data
-#         tmp +=  estimatePrice(i[0]) - i[1]
-#         tmp1 += (estimatePrice(i[0]) - i[1]) * i[0]
-
-#     tmp = tmp * (1/m) *learningRate
-#     tmp1 = tmp1 / m * learningRate
-#     return tmp tmp1
+    plt.plot(x, y)
+    
+    plt.show()
