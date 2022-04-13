@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 theta0, theta1 = 0.0, 0.0
+mse = []
 
 def readfile():
-    lines = []
     data = []
     with open("data.csv", "r") as f:
         lines = f.readlines()[1:]
@@ -16,7 +16,6 @@ def readfile():
 
 def Relements(mileage, price, xAverage, yAverage):
     tmpx, x2, tmpy, y2, sumxy = 0.0, 0.0, 0.0, 0.0, 0.0
-    index = 0
     for index in range(len(mileage)):
         tmpx = mileage[index] - xAverage
         tmpy = price[index] - yAverage
@@ -33,7 +32,7 @@ def getLearningRate(mileage, price):
     xAverage = Average(mileage)
     yAverage = Average(price)
     sumxAverage, x2Average, y2Averege = Relements(mileage, price, xAverage, yAverage)
-    tmp1 = math.sqrt(y2Averege / (len(price) - 1)) / math.sqrt(x2Average / (len(mileage) - 1))
+    # tmp1 = math.sqrt(y2Averege / (len(price) - 1)) / math.sqrt(x2Average / (len(mileage) - 1))
     return sumxAverage / math.sqrt(x2Average * y2Averege) * -1
 
 def denormalize(mileage, price):
@@ -58,12 +57,17 @@ def estimatePrice(mileage):
     return theta0 + (theta1 * mileage)
 
 def train(mileage, price):
-    tmp0, tmp1 = 0.0, 0.0
+    tmp0, tmp1, tmp2 = 0.0, 0.0, 0.0
     normMileage = normalize(mileage)
     normPrice = normalize(price) 
     for i in range(len(mileage)):
         tmp0 += estimatePrice(normMileage[i]) - normPrice[i] 
         tmp1 += (estimatePrice(normMileage[i]) - normPrice[i]) * normMileage[i]
+        tmp2 += (estimatePrice(normMileage[i]) - normPrice[i]) *  (estimatePrice(normMileage[i]) - normPrice[i])
+
+    # print(tmp0 * tmp0)
+    global mse
+    mse.append(float(tmp2 / len(mileage)))
     
     global theta0, theta1
     theta0 -= learningRate * tmp0/len(mileage)
@@ -87,8 +91,15 @@ if __name__ == "__main__":
     plt.xlim(xmin=0)
     x = np.array(range(240000))
     y = theta0 + theta1 * x
-    print(theta0 + theta1 * 22899)
 
     plt.plot(x, y)
     
     plt.show()
+    x = np.array(range(len(mse)))
+    y = mse
+    # plt.xlim(xmin= -1)
+    # global mse
+    plt.plot(x, y)
+    plt.show()
+    # print(len(mse))
+    # print(mse)
