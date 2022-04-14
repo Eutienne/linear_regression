@@ -1,24 +1,28 @@
 #!/usr/bin/env python
 
 import math
-import matplotlib.pyplot as plt
-import numpy as np
+import os
+import json
 
 class Trainer:
 	
 	"""
 			Constructor
 	"""
-	def __init__(self, file):
-		self.theta0, self.theta1, = 0.0, 0.0
+	def __init__(self, file=None):
+		self.theta0, self.theta1, self.normtheta0, self.normtheta1 = 0.0, 0.0, 0.0, 0.0
 		self.km_norm, self.pr_norm, self.learningRate = 0.0, 0.0, 0.0
 		self.mse = []
-		with open(file, "r") as f:
-			lines = f.readlines()[1:]
-		data = []
-		for line in lines:
-			data.append([int(s) for s in line.rstrip().split(',') if s.isdigit()])
-		self.mileage, self.price = zip(*data)
+		if file:
+			with open(file, "r") as f:
+				lines = f.readlines()[1:]
+			data = []
+			for line in lines:
+				data.append([int(s) for s in line.rstrip().split(',') if s.isdigit()])
+			self.mileage, self.price = zip(*data)
+			self.km_norm = self.normalize(self.mileage)
+			self.pr_norm = self.normalize(self.price)
+			self.setLearningRate()
 
 	"""
 			Hypothesis
@@ -82,17 +86,34 @@ class Trainer:
 		return newList
 
 	def train(self):
-		tmp0, tmp1, tmp2 = 0.0, 0.0, 0.0
-		self.km_norm = self.normalize(self.mileage)
-		self.pr_norm = self.normalize(self.price) 
-		for i in range(len(self.mileage)):
-			tmp0 += self.estimatePrice(self.km_norm[i]) - self.pr_norm[i] 
-			tmp1 += (self.estimatePrice(self.km_norm[i]) - self.pr_norm[i]) * self.km_norm[i]
-			tmp2 += (self.estimatePrice(self.km_norm[i]) - self.pr_norm[i]) *  (self.estimatePrice(self.km_norm[i]) - self.pr_norm[i])
-		self.mse.append(float(tmp2 / len(self.mileage)))
+		for i in range(1000):
+			tmp0, tmp1, tmp2 = 0.0, 0.0, 0.0
+			
+			for i in range(len(self.mileage)):
+				tmp0 += self.estimatePrice(self.km_norm[i]) - self.pr_norm[i] 
+				tmp1 += (self.estimatePrice(self.km_norm[i]) - self.pr_norm[i]) * self.km_norm[i]
+				tmp2 += (self.estimatePrice(self.km_norm[i]) - self.pr_norm[i])**2
+			
+			self.mse.append(float(tmp2 / len(self.mileage)))
+			self.theta0 -= self.learningRate * tmp0/len(self.mileage)
+			self.theta1 -= self.learningRate * tmp1 / len(self.price)
 		
-		self.theta0 -= self.learningRate * tmp0/len(self.mileage)
-		self.theta1 -= self.learningRate * tmp1 / len(self.price)
+		self.normtheta0 = self.theta0
+		self.normtheta1 = self.theta1
+		self.denormalize()
+		
+
+	def	save_json(self, filepath):
+		dict_ = {}
+		dict_['theta0'] = self.theta0
+		dict_['theta1'] = self.theta1
+		dict_['mileage'] = self.mileage
+		dict_['price'] = self.price
+
+		json_txt = json.dumps(dict_, indent=4)
+		with open(filepath, 'w') as file:
+			file.write(json_txt)
+
 	
 		
 		
