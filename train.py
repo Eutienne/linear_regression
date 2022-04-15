@@ -8,8 +8,16 @@ def path_exist():
 
 if __name__ == "__main__":
     path_exist()
-    T1 = Trainer("data/data.csv")
-    T1.train()
+    try:
+        T1 = Trainer("data/data.csv")
+    except:
+        print("Input error")
+        exit(0)
+    try:
+        T1.train()
+    except:
+        print("Could not train the machine")
+        exit(0)
     Graphs_Linear(T1,'The car price vs mileage','mileage','price')
     Graphs_Norm(T1,'The car price vs mileage norm','mileage','price')
     Graphs_MSE(T1,'Mean Squared Error','iterations','error', len(T1.mse))
