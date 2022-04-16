@@ -9,8 +9,8 @@ This project having a program that predicts the price of a car by using a linear
 There is an implementation of a simple linear regression with a single feature - in this case, the mileage of the car.
 </br>
 The trainer will make a Linear Regression from the data that is comming in and set the data in a graph</br>
-`train.py` functions with `csv` files with `,` as separator
-
+`train.py` functions with `csv` files with `,` as separator<br>
+<img src="./image/example1.png" width="400"><img src="./image/example2.png" width="400">
 
 ## Usage
 
