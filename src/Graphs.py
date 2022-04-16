@@ -24,6 +24,7 @@ def Graphs_Norm(T1, title, xlabel, ylabel, length=2):
     plt.ylabel(ylabel, fontsize=18)
     x = np.array(range(length))
     y = T1.normtheta0 + T1.normtheta1 * x
+    plt.ylim(0)
     plt.plot(x, y, color='purple')
     if not os.path.isdir("Graphs"):
         os.makedirs("Graphs")

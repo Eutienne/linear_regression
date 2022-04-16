@@ -38,18 +38,18 @@ class Precision:
         for i in range(len(self.T1.mileage)):
             mse += (self.T1.price[i] - self.T1.estimatePrice(self.T1.mileage[i])) **2
         mse = mse / len(self.T1.mileage)
-        print("Mean Squere Error (MSE)               =",  "{:.2f}".format(mse))
+        print("Mean Square Error (MSE)               =",  "{:.2f}".format(mse))
 
     def MAPE(self):
         mape = 0.0
         for i in range(len(self.T1.mileage)):
             mape += abs(self.T1.price[i] - self.T1.estimatePrice(self.T1.mileage[i])) / self.T1.price[i]
-        mape = mape / len(self.T1.mileage)
-        print("Mean Absolute Percentage Error (MAE)  = %f%%" %mape)
+        mape = mape / len(self.T1.mileage) * 100
+        print("Mean Absolute Percentage Error (MAPE) = %f%%" %mape)
 
     def MPE(self):
         mpe = 0.0
         for i in range(len(self.T1.mileage)):
             mpe += (self.T1.price[i] - self.T1.estimatePrice(self.T1.mileage[i])) / self.T1.price[i]
-        mpe = mpe / len(self.T1.mileage)
-        print("Mean Percentage Error (MAE)           = %f%%" %mpe, '\033[0m')
+        mpe = mpe / len(self.T1.mileage) *100
+        print("Mean Percentage Error (MPE)           = %f%%" %mpe, '\033[0m')
